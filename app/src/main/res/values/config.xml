@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="api_url">https://circleci.com/api/v1</string>
+    <string name="api_token">8e3217869e94ac13d86bc38dfdb0b84858cb2f43</string>
+</resources>

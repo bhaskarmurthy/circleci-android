@@ -1,4 +1,4 @@
-package ca.cloudstudios.circleci;
+package com.warpten.circleci;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
