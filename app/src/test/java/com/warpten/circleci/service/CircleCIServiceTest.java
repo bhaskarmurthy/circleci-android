@@ -2,12 +2,11 @@ package com.warpten.circleci.service;
 
 import com.warpten.circleci.model.Branch;
 import com.warpten.circleci.model.Build;
-import com.warpten.circleci.model.Repository;
 import com.warpten.circleci.model.Me;
+import com.warpten.circleci.model.Repository;
 
 import org.junit.Test;
 
-import java.util.List;
 import java.util.Map;
 
 import retrofit.RequestInterceptor;
@@ -49,12 +48,11 @@ public class CircleCIServiceTest {
 
     @Test
     public void testGetProjects() throws Exception {
-        List<Repository> repositories = mService.getProjects()
+        Iterable<Repository> repositories = mService.getProjects()
                 .toBlocking()
-                .single();
+                .next();
 
         assertNotNull(repositories);
-        assertTrue(repositories.size() > 0);
 
         for (Repository repository : repositories) {
             assertNotNull(repository.name);

@@ -2,14 +2,13 @@ package com.warpten.circleci;
 
 import android.app.Application;
 
+import com.warpten.circleci.modules.DebugDataModule;
+import com.warpten.circleci.view.MainFragment;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import ca.cloudstudios.circleci.BuildConfig;
-
-import com.warpten.circleci.modules.DataModule;
-import com.warpten.circleci.view.MainActivity;
-
 import dagger.Component;
 import de.greenrobot.event.EventBus;
 import timber.log.Timber;
@@ -19,11 +18,20 @@ import timber.log.Timber;
  */
 public class CircleCIApplication extends Application {
 
+    /*
     @Singleton
     @Component(modules = DataModule.class)
     public interface ApplicationComponent {
         void inject (CircleCIApplication application);
         void inject (MainActivity activity);
+    }
+    */
+
+    @Singleton
+    @Component(modules = DebugDataModule.class)
+    public interface ApplicationComponent {
+        void inject (CircleCIApplication application);
+        void inject (MainFragment activity);
     }
 
     @Inject EventBus mEventBus;
@@ -47,7 +55,7 @@ public class CircleCIApplication extends Application {
 
     private void setupModules() {
         mApplicationComponent = DaggerCircleCIApplication_ApplicationComponent.builder()
-                .dataModule(new DataModule(this))
+                .debugDataModule(new DebugDataModule(this))
                 .build();
         mApplicationComponent.inject(this);
     }
