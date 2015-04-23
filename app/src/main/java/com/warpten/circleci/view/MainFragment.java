@@ -13,13 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.warpten.circleci.CircleCIApplication;
 import com.warpten.circleci.adapter.BaseArrayAdapter;
 import com.warpten.circleci.model.Branch;
 import com.warpten.circleci.model.Build;
-import com.warpten.circleci.model.Repository;
+import com.warpten.circleci.mvp.presenter.RepositoriesPresenter;
 import com.warpten.circleci.mvp.view.RepositoriesView;
 import com.warpten.circleci.service.CircleCIService;
 
@@ -31,11 +30,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import ca.cloudstudios.circleci.R;
 import icepick.Icicle;
-import rx.Subscription;
-import rx.android.app.AppObservable;
-import rx.functions.Action0;
-import rx.functions.Action1;
-import timber.log.Timber;
 
 /**
  * Created by bhaskar on 15-04-20.
@@ -55,9 +49,9 @@ public class MainFragment extends BaseFragment implements SwipeRefreshLayout.OnR
 
     private SwitchCompat mBranchToggle;
 
-    private BranchesAdapter adapter = new BranchesAdapter();
+    private RepositoriesPresenter presenter;
 
-    private Subscription mSubscription;
+    private BranchesAdapter adapter = new BranchesAdapter();
 
     @Icicle
     boolean mFetchMyBranches;
@@ -67,6 +61,9 @@ public class MainFragment extends BaseFragment implements SwipeRefreshLayout.OnR
         super.onCreate(savedInstanceState);
         ((CircleCIApplication) getActivity().getApplication()).getApplicationComponent().inject(this);
         setHasOptionsMenu(true);
+
+        presenter = new RepositoriesPresenter(service);
+        presenter.setShowMine(mFetchMyBranches);
     }
 
     @Override
@@ -75,43 +72,6 @@ public class MainFragment extends BaseFragment implements SwipeRefreshLayout.OnR
         mBranchToggle = (SwitchCompat) menu.findItem(R.id.action_toggle_branch).getActionView();
         mBranchToggle.setChecked(mFetchMyBranches);
         mBranchToggle.setOnCheckedChangeListener(this);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mSubscription = AppObservable.bindFragment(this, service.getRepositories())
-                .subscribe(new Action1<List<Repository>>() {
-                    @Override
-                    public void call(List<Repository> repositories) {
-                        adapter.clear();
-                        for (Repository repository : repositories) {
-                            for (String branchName : repository.branches.keySet()) {
-                                Branch branch = repository.branches.get(branchName);
-                                branch.name = branchName;
-                                adapter.add(branch);
-                            }
-                        }
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        Timber.e(throwable, "Error getting projects");
-                    }
-                }, new Action0() {
-                    @Override
-                    public void call() {
-                        Timber.d("Completed projects");
-                    }
-                });
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mSubscription !=null) {
-            mSubscription.unsubscribe();
-        }
     }
 
     @Override
@@ -124,14 +84,23 @@ public class MainFragment extends BaseFragment implements SwipeRefreshLayout.OnR
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         mList.setLayoutManager(new LinearLayoutManager(getActivity()));
         mList.setAdapter(adapter);
         mRefresh.setOnRefreshListener(this);
+
+        presenter.bindView(this);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        presenter.unbindView();
     }
 
     @Override
     public void onRefresh() {
-
+        presenter.fetchData();
     }
 
     @Override
@@ -154,7 +123,8 @@ public class MainFragment extends BaseFragment implements SwipeRefreshLayout.OnR
     public void onCheckedChanged(CompoundButton view, boolean isChecked) {
         if (R.id.action_toggle_branch == view.getId()) {
             mFetchMyBranches = isChecked;
-            Toast.makeText(getContext(), String.valueOf(isChecked), Toast.LENGTH_SHORT).show();
+            presenter.setShowMine(isChecked);
+            presenter.fetchData();
         }
     }
 

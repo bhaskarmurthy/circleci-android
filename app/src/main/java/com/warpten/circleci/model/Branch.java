@@ -12,4 +12,7 @@ public class Branch {
 
     @SerializedName("recent_builds")
     public List<Build> recentBuilds;
+
+    @SerializedName("pusher_logins")
+    public List<String> users;
 }
