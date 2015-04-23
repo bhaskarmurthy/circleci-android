@@ -22,7 +22,7 @@ public abstract class BaseArrayAdapter<T extends Object, V extends RecyclerView.
 
     public void add(T item) {
         list.add(item);
-        notifyItemInserted(list.size());
+        notifyItemInserted(list.indexOf(item));
     }
 
     public void remove(T item) {
@@ -34,6 +34,6 @@ public abstract class BaseArrayAdapter<T extends Object, V extends RecyclerView.
     public void clear() {
         int size = list.size();
         list.clear();
-        notifyItemRangeRemoved(0, size);
+        notifyDataSetChanged();
     }
 }

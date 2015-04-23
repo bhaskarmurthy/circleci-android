@@ -1,9 +1,8 @@
 package com.warpten.circleci.view;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,13 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.malinskiy.superrecyclerview.SuperRecyclerView;
 import com.warpten.circleci.CircleCIApplication;
 import com.warpten.circleci.adapter.BaseArrayAdapter;
-import com.warpten.circleci.model.Project;
 import com.warpten.circleci.model.Repository;
-import com.warpten.circleci.mvp.presenter.ProjectsPresenter;
-import com.warpten.circleci.mvp.view.ProjectsView;
 import com.warpten.circleci.service.CircleCIService;
 
 import javax.inject.Inject;
@@ -34,17 +29,18 @@ import timber.log.Timber;
 /**
  * Created by bhaskar on 15-04-20.
  */
-public class MainFragment extends Fragment implements ProjectsView {
+public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     @Inject
     CircleCIService service;
 
+    @InjectView(R.id.swiperefresh)
+    SwipeRefreshLayout mRefresh;
+
     @InjectView(R.id.list)
-    SuperRecyclerView mList;
+    RecyclerView mList;
 
     private RepositoriesAdapter adapter = new RepositoriesAdapter();
-
-    private ProjectsPresenter presenter = new ProjectsPresenter();
 
     private Subscription mSubscription;
 
@@ -52,18 +48,6 @@ public class MainFragment extends Fragment implements ProjectsView {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((CircleCIApplication) getActivity().getApplication()).getApplicationComponent().inject(this);
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        presenter.bindView(this);
-    }
-
-    @Override
-    public void onDetach() {
-        presenter.unbindView();
-        super.onDetach();
     }
 
     @Override
@@ -107,18 +91,23 @@ public class MainFragment extends Fragment implements ProjectsView {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mList.setLayoutManager(new LinearLayoutManager(getContext()));
+        mList.setLayoutManager(new LinearLayoutManager(getActivity()));
         mList.setAdapter(adapter);
+        mRefresh.setOnRefreshListener(this);
     }
 
     @Override
-    public void addProject(Project project) {
-        Timber.d("Added project", project);
-    }
+    public void onRefresh() {
+        mList.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Repository r = new Repository();
+                r.name = "Hello, world";
+                adapter.add(r);
 
-    @Override
-    public Context getContext() {
-        return getActivity();
+                mRefresh.setRefreshing(false);
+            }
+        }, 2000);
     }
 
     static class RepositoriesAdapter extends BaseArrayAdapter<Repository, RepositoryViewHolder> {
