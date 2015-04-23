@@ -11,5 +11,7 @@ public class Repository {
     @SerializedName("reponame")
     public String name;
 
+    public String username;
+
     public Map<String, Branch> branches;
 }

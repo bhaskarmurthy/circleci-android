@@ -48,7 +48,7 @@ public class CircleCIServiceTest {
 
     @Test
     public void testGetProjects() throws Exception {
-        Iterable<Repository> repositories = mService.getProjects()
+        Iterable<Repository> repositories = mService.getRepositories()
                 .toBlocking()
                 .next();
 

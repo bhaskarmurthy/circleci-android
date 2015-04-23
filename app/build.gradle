@@ -31,6 +31,10 @@ android {
     }
 }
 
+repositories {
+    maven {url "https://clojars.org/repo/"}
+}
+
 dependencies {
     // support libraries
     compile 'com.android.support:appcompat-v7:22.0.0'
@@ -43,6 +47,11 @@ dependencies {
     provided 'com.google.dagger:dagger-compiler:2.0'
     compile 'com.jakewharton:butterknife:6.1.0'
     compile 'de.greenrobot:eventbus:2.4.0'
+
+    // annotations
+    compile 'frankiesardo:icepick:3.0.2'
+    provided 'frankiesardo:icepick-processor:3.0.2'
+
     // api
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'io.reactivex:rxandroid:0.24.0'

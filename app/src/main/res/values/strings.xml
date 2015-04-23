@@ -3,4 +3,5 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_main">CircleCI</string>
     <string name="hello_world">Hello world!</string>
+    <string name="action_toggle_branch">Filter branches</string>
 </resources>

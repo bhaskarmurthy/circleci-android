@@ -5,6 +5,9 @@ import com.warpten.circleci.model.Me;
 import com.warpten.circleci.model.Repository;
 import com.warpten.circleci.service.CircleCIService;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -39,13 +42,15 @@ public class DebugDataModule {
             }
 
             @Override
-            public Observable<Repository> getProjects() {
-                return Observable.create(new Observable.OnSubscribe<Repository>() {
+            public Observable<List<Repository>> getRepositories() {
+                return Observable.create(new Observable.OnSubscribe<List<Repository>>() {
                     @Override
-                    public void call(Subscriber<? super Repository> subscriber) {
+                    public void call(Subscriber<? super List<Repository>> subscriber) {
+                        List<Repository> repos = new ArrayList<Repository>();
                         Repository r = new Repository();
                         r.name = "Hello, world";
-                        subscriber.onNext(r);
+                        repos.add(r);
+                        subscriber.onNext(repos);
                         subscriber.onCompleted();
                     }
                 });

@@ -3,6 +3,7 @@ package com.warpten.circleci.adapter;
 import android.support.v7.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by bhaskar on 15-04-20.
@@ -25,14 +26,20 @@ public abstract class BaseArrayAdapter<T extends Object, V extends RecyclerView.
         notifyItemInserted(list.indexOf(item));
     }
 
+    public void addAll(List<T> items) {
+        final int startIndex = list.size();
+        list.addAll(items);
+        notifyItemRangeInserted(startIndex, items.size());
+    }
+
     public void remove(T item) {
-        int position = list.indexOf(item);
+        final int position = list.indexOf(item);
         list.remove(item);
         notifyItemRemoved(position);
     }
 
     public void clear() {
-        int size = list.size();
+        final int size = list.size();
         list.clear();
         notifyDataSetChanged();
     }
