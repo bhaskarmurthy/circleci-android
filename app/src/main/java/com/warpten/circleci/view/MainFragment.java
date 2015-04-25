@@ -1,5 +1,6 @@
 package com.warpten.circleci.view;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -12,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.warpten.circleci.CircleCIApplication;
@@ -28,6 +30,7 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.InjectViews;
 import ca.cloudstudios.circleci.R;
 import icepick.Icicle;
 
@@ -52,6 +55,8 @@ public class MainFragment extends BaseFragment implements SwipeRefreshLayout.OnR
     private RepositoriesPresenter presenter;
 
     private BranchesAdapter adapter = new BranchesAdapter();
+
+    private MainActivityCallback callback;
 
     @Icicle
     boolean mFetchMyBranches;
@@ -79,6 +84,14 @@ public class MainFragment extends BaseFragment implements SwipeRefreshLayout.OnR
         final View view = inflater.inflate(R.layout.activity_main, container, false);
         ButterKnife.inject(this, view);
         return view;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (activity instanceof MainActivityCallback) {
+            callback = (MainActivityCallback) activity;
+        }
     }
 
     @Override
@@ -125,7 +138,15 @@ public class MainFragment extends BaseFragment implements SwipeRefreshLayout.OnR
             mFetchMyBranches = isChecked;
             presenter.setShowMine(isChecked);
             presenter.fetchData();
+
+            if (callback != null) {
+                callback.setDarkActionbar(isChecked);
+            }
         }
+    }
+
+    public interface MainActivityCallback {
+        void setDarkActionbar(boolean isDark);
     }
 
     static class BranchesAdapter extends BaseArrayAdapter<Branch, BranchViewHolder> {
@@ -154,6 +175,28 @@ public class MainFragment extends BaseFragment implements SwipeRefreshLayout.OnR
 
         @InjectView(R.id.subtitle)
         TextView subtitle;
+
+        @InjectView(R.id.status)
+        ImageView status;
+
+
+        @InjectView(R.id.status_1)
+        ImageView status1;
+
+        @InjectView(R.id.status_2)
+        ImageView status2;
+
+        @InjectView(R.id.status_3)
+        ImageView status3;
+
+        @InjectView(R.id.status_4)
+        ImageView status4;
+
+        @InjectView(R.id.status_5)
+        ImageView status5;
+
+        @InjectViews({R.id.status_1, R.id.status_2, R.id.status_3, R.id.status_4, R.id.status_5})
+        List<ImageView> statuses;
 
         public BranchViewHolder(View view) {
             super(view);

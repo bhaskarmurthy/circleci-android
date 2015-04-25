@@ -7,6 +7,7 @@ import com.warpten.circleci.model.Repository;
 
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Map;
 
 import retrofit.RequestInterceptor;
@@ -48,9 +49,9 @@ public class CircleCIServiceTest {
 
     @Test
     public void testGetProjects() throws Exception {
-        Iterable<Repository> repositories = mService.getRepositories()
+        List<Repository> repositories = mService.getRepositories()
                 .toBlocking()
-                .next();
+                .single();
 
         assertNotNull(repositories);
 

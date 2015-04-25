@@ -55,8 +55,9 @@ dependencies {
     // api
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'io.reactivex:rxandroid:0.24.0'
+
     // ui
-    compile 'com.tonicartos:superslim:0.4.+'
+    
     // logging
     compile 'com.jakewharton.timber:timber:2.7.1'
     compile fileTree(dir: 'libs', include: ['*.jar'])
