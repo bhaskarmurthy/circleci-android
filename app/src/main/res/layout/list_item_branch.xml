@@ -10,7 +10,7 @@
     app:contentPaddingRight="@dimen/activity_horizontal_margin"
     android:layout_marginBottom="@dimen/activity_vertical_margin"
     style="@style/CardView"
-    tools:context="com.warpten.circleci.view.MainActivity">
+    tools:context="com.warpten.circleci.projects.MainActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"

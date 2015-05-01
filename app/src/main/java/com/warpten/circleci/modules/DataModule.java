@@ -1,10 +1,10 @@
 package com.warpten.circleci.modules;
 
+import com.warpten.circleci.model.Projects;
+import com.warpten.circleci.service.CircleCIService;
+
 import javax.inject.Singleton;
 
-import com.warpten.circleci.CircleCIApplication;
-import com.warpten.circleci.service.CircleCIService;
-import ca.cloudstudios.circleci.R;
 import dagger.Module;
 import dagger.Provides;
 import de.greenrobot.event.EventBus;
@@ -17,20 +17,10 @@ import timber.log.Timber;
  */
 @Module
 public class DataModule {
-    private final CircleCIApplication mApplication;
+    private final CircleCIService service;
 
-    public DataModule(CircleCIApplication application) {
-        mApplication = application;
-    }
-
-    @Provides @Singleton
-    EventBus provideEventBus() {
-        return EventBus.getDefault();
-    }
-
-    @Provides @Singleton
-    CircleCIService provideCircleCiService() {
-        return new RestAdapter.Builder()
+    public DataModule(final String apiUrl, final String apiToken) {
+        this.service = new RestAdapter.Builder()
                 .setLog(new RestAdapter.Log() {
                     @Override
                     public void log(String message) {
@@ -38,15 +28,25 @@ public class DataModule {
                     }
                 })
                 .setLogLevel(RestAdapter.LogLevel.HEADERS_AND_ARGS)
+                .setEndpoint(apiUrl)
                 .setRequestInterceptor(new RequestInterceptor() {
                     @Override
                     public void intercept(RequestFacade request) {
                         request.addHeader("Accept", "application/json");
-                        request.addQueryParam("circle-token", mApplication.getString(R.string.api_token));
+                        request.addQueryParam("circle-token", apiToken);
                     }
                 })
-                .setEndpoint(mApplication.getString(R.string.api_url))
                 .build()
                 .create(CircleCIService.class);
+    }
+
+    @Provides @Singleton
+    public EventBus provideEventBus() {
+        return EventBus.getDefault();
+    }
+
+    @Provides
+    public Projects provideProjectsModel() {
+        return new Projects(service);
     }
 }

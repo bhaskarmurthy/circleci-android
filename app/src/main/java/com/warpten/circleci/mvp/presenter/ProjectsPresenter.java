@@ -1,16 +1,15 @@
 package com.warpten.circleci.mvp.presenter;
 
 import com.warpten.circleci.model.Branch;
-import com.warpten.circleci.model.Repository;
+import com.warpten.circleci.model.Project;
+import com.warpten.circleci.model.Projects;
 import com.warpten.circleci.mvp.view.RepositoriesView;
-import com.warpten.circleci.service.CircleCIService;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
@@ -18,9 +17,7 @@ import timber.log.Timber;
 /**
  * Created by bhaskar on 15-04-20.
  */
-public class RepositoriesPresenter implements Presenter<RepositoriesView> {
-
-    final CircleCIService service;
+public class ProjectsPresenter implements Presenter<RepositoriesView> {
 
     private RepositoriesView view;
 
@@ -28,15 +25,34 @@ public class RepositoriesPresenter implements Presenter<RepositoriesView> {
 
     private Subscription subscription;
 
-    public RepositoriesPresenter(CircleCIService service) {
+    private Projects projects;
+
+    public ProjectsPresenter(Projects model) {
         super();
-        this.service = service;
+        this.projects = model;
     }
 
     @Override
     public void bindView(RepositoriesView view) {
         this.view = view;
-        fetchData();
+        this.subscription = projects.getObservable()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<List<Project>>() {
+                    @Override
+                    public void call(List<Project> repositories) {
+                        loadData(repositories);
+                        hideLoading();
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        Timber.e(throwable, "Error getting projects");
+                        hideLoading();
+                    }
+                });
+
+        this.projects.refresh();
     }
 
     @Override
@@ -49,32 +65,12 @@ public class RepositoriesPresenter implements Presenter<RepositoriesView> {
 
     public void fetchData() {
         showLoading();
-        subscription = service.getRepositories()
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<List<Repository>>() {
-                    @Override
-                    public void call(List<Repository> repositories) {
-                        loadData(repositories);
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        Timber.e(throwable, "Error getting projects");
-                        hideLoading();
-                    }
-                }, new Action0() {
-                    @Override
-                    public void call() {
-                        Timber.d("Completed projects");
-                        hideLoading();
-                    }
-                });
+        projects.refresh();
     }
 
-    private void loadData(List<Repository> repositories) {
+    private void loadData(List<Project> repositories) {
         List<Branch> branches = new ArrayList<>();
-        for (Repository repository : repositories) {
+        for (Project repository : repositories) {
             if (repository.branches != null) {
                 for (String name : repository.branches.keySet()) {
                     Branch branch = repository.branches.get(name);

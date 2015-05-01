@@ -3,7 +3,7 @@ package com.warpten.circleci.service;
 import com.warpten.circleci.model.Branch;
 import com.warpten.circleci.model.Build;
 import com.warpten.circleci.model.Me;
-import com.warpten.circleci.model.Repository;
+import com.warpten.circleci.model.Project;
 
 import org.junit.Test;
 
@@ -49,13 +49,13 @@ public class CircleCIServiceTest {
 
     @Test
     public void testGetProjects() throws Exception {
-        List<Repository> repositories = mService.getRepositories()
+        List<Project> repositories = mService.getRepositories()
                 .toBlocking()
                 .single();
 
         assertNotNull(repositories);
 
-        for (Repository repository : repositories) {
+        for (Project repository : repositories) {
             assertNotNull(repository.name);
 
             Map<String, Branch> branches = repository.branches;

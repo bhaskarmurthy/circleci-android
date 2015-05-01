@@ -2,15 +2,16 @@ package com.warpten.circleci;
 
 import android.app.Application;
 
+import com.warpten.circleci.model.Projects;
 import com.warpten.circleci.modules.DataModule;
-import com.warpten.circleci.modules.DebugDataModule;
-import com.warpten.circleci.view.MainActivity;
-import com.warpten.circleci.view.MainFragment;
+import com.warpten.circleci.modules.ProjectsModule;
+import com.warpten.circleci.projects.MainFragment;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import ca.cloudstudios.circleci.BuildConfig;
+import ca.cloudstudios.circleci.R;
 import dagger.Component;
 import de.greenrobot.event.EventBus;
 import timber.log.Timber;
@@ -20,23 +21,25 @@ import timber.log.Timber;
  */
 public class CircleCIApplication extends Application {
 
-    @Singleton
-    @Component(modules = DataModule.class)
-    public interface ApplicationComponent {
-        void inject (CircleCIApplication application);
-        void inject (MainFragment fragment);
-    }
-
     /*
     @Singleton
     @Component(modules = DebugDataModule.class)
-    public interface ApplicationComponent {
+    public interface com.warpten.circleci.modules.ApplicationComponent {
         void inject (CircleCIApplication application);
         void inject (MainFragment activity);
     }
     */
 
+    @Singleton
+    @Component(modules = { DataModule.class, ProjectsModule.class })
+    public interface ApplicationComponent {
+        void inject (CircleCIApplication application);
+        void inject (MainFragment fragment);
+    }
+
     @Inject EventBus mEventBus;
+
+    @Inject Projects projectsModel;
 
     private ApplicationComponent mApplicationComponent;
 
@@ -57,7 +60,8 @@ public class CircleCIApplication extends Application {
 
     private void setupModules() {
         mApplicationComponent = DaggerCircleCIApplication_ApplicationComponent.builder()
-                .dataModule(new DataModule(this))
+                .dataModule(new DataModule(getString(R.string.api_url), getString(R.string.api_token)))
+                .projectsModule(new ProjectsModule(projectsModel))
                 .build();
         mApplicationComponent.inject(this);
     }

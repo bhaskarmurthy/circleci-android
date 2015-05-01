@@ -1,7 +1,7 @@
 package com.warpten.circleci.service;
 
 import com.warpten.circleci.model.Me;
-import com.warpten.circleci.model.Repository;
+import com.warpten.circleci.model.Project;
 
 import java.util.List;
 
@@ -16,5 +16,5 @@ public interface CircleCIService {
     Observable<Me> getMe();
 
     @GET("/projects")
-    Observable<List<Repository>> getRepositories();
+    Observable<List<Project>> getRepositories();
 }
